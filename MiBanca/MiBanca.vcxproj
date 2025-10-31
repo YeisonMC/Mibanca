@@ -114,7 +114,11 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cola.h" />
     <ClInclude Include="Cuenta.h" />
+    <ClInclude Include="ListaUsuarios.h" />
+    <ClInclude Include="Nodo.h" />
+    <ClInclude Include="Pila.h" />
     <ClInclude Include="Tarjeta.h" />
     <ClInclude Include="Usuario.h" />
   </ItemGroup>

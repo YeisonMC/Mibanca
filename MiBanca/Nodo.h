@@ -8,8 +8,8 @@ public:
 	Nodo<T>* siguiente;
 
 	// Constructor
-	Nodo(T v, Nodo<T>* sig = nullptr) {
-		dato = v;
+	Nodo(T valor, Nodo<T>* sig = nullptr) {
+		dato = valor;
 		siguiente = sig;
 	}
 };
