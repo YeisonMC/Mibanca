@@ -11,6 +11,7 @@ template<class T>
 class ListaUsuarios {
 private:
     Nodo<T>* inicio;
+    vector<Cuenta*> listaDeCuentas;
     int tamano;
 
 public:
@@ -132,15 +133,14 @@ public:
         return nullptr;
     }
 
-   /* T* buscarPorCuenta(const string& cuentaBuscada) {
-        Nodo<T>* actual = inicio;
-        while (actual != nullptr) {
-            if (actual->dato.getNumeroDeCuenta() == cuentaBuscada)
-                return &(actual->dato);
-            actual = actual->siguiente;
+    Cuenta* buscarCuentaPorId(const string& idCuenta) {
+        for (auto cuenta : listaDeCuentas) {
+            if (cuenta->getIdCuenta() == idCuenta) {
+                return cuenta;
+            }
         }
-        return nullptr;
-    }*/
+        return nullptr; 
+    }
 
     // ====== GUARDAR Y CARGAR EN ARCHIVO ======
     void guardar(const string& archivo = "usuarios.bin") {
@@ -209,7 +209,27 @@ private:
         int edad = u.getEdad();
         ofs.write((char*)&edad, sizeof(int));
         guardarString(ofs, u.getPassword());
-        // No se guardan tarjetas (ya que son punteros)
+
+        // --- Guardar cantidad de tarjetas ---
+        int cantidadTarjetas = u.getTarjetas().size();
+        ofs.write((char*)&cantidadTarjetas, sizeof(int));
+
+        // --- Guardar cada tarjeta ---
+        for (auto t : u.getTarjetas()) {
+            guardarString(ofs, t->getNumero());
+            int tipo = (int)t->getTipo();
+            ofs.write((char*)&tipo, sizeof(int));
+            int cvc = t->getCvc();
+            ofs.write((char*)&cvc, sizeof(int));
+            guardarString(ofs, t->getTitular());
+
+            if (t->getCuentaAsociada() != nullptr) {
+                guardarString(ofs, t->getCuentaAsociada()->getIdCuenta());
+            }
+            else {
+                guardarString(ofs, "SIN_CUENTA"); 
+            }
+        }
     }
 
     bool leer(ifstream& ifs, T& u) {
@@ -224,8 +244,34 @@ private:
         if (!ifs.read((char*)&edad, sizeof(int))) return false;
         string password = leerString(ifs);
 
-        // Creamos un nuevo usuario con los datos leídos
+        // Creamos un nuevo usuario con los datos leIdos
         u = T(id, nombre, apellido, dni, edad, password);
+
+        // Leemos la cantidad de tarjetas
+        int cantidadTarjetas = 0;
+        ifs.read((char*)&cantidadTarjetas, sizeof(int));
+
+        // Leemos cada tarjeta
+        for (int i = 0; i < cantidadTarjetas; i++) {
+            string numero = leerString(ifs);
+            int tipoInt = 0;
+            ifs.read((char*)&tipoInt, sizeof(int));
+            TipoTarjeta tipo = (TipoTarjeta)tipoInt;
+            int cvc = 0;
+            ifs.read((char*)&cvc, sizeof(int));
+            string titular = leerString(ifs);
+            string idCuenta = leerString(ifs);
+
+            Cuenta* cuenta = nullptr;
+            if (idCuenta != "SIN_CUENTA") {
+                cuenta = buscarCuentaPorId(idCuenta); 
+            }
+
+            // Creamos la tarjeta con la cuenta asociada (si existe)
+            Tarjeta* tarjeta = new Tarjeta(numero, tipo, cvc, titular, cuenta);
+            u.agregarTarjeta(tarjeta);
+        }
+
         return true;
     }
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Tarjeta.h"
+#include <string> 
 
 using namespace std;
 
@@ -16,8 +17,10 @@ private:
 
 public:
     Usuario(string id, string nombre, string apellido, int dni, int edad, string password)
-        : id(id), nombre(nombre), dni(dni), password(password) {
-    }
+        : id(id), nombre(nombre), apellido(apellido), dni(dni), edad(edad), password(password) {}
+
+    Usuario() : id(""), nombre(""), apellido(""), dni(0), edad(0), password("") {}
+
 
     void agregarTarjeta(Tarjeta* t) {
         if (t != nullptr) {
@@ -50,4 +53,21 @@ public:
         cout << "Tarjetas registradas: " << tarjetas.size() << endl;
         cout << "==============================\n";
     }
+
+    // === Getters ===
+    string getId() const { return id; }
+    string getNombre() const { return nombre; }
+    string getApellido() const { return apellido; }
+    int getDni() const { return dni; }
+    int getEdad() const { return edad; }
+    string getPassword() const { return password; }
+    const vector<Tarjeta*>& getTarjetas() const { return tarjetas; }
+
+    // === Setters ===
+    void setId(const string& id) { this->id = id; }
+    void setNombre(const string& nombre) { this->nombre = nombre; }
+    void setApellido(const string& apellido) { this->apellido = apellido; }
+    void setDni(int dni) { this->dni = dni; }
+    void setEdad(int edad) { this->edad = edad; }
+    void setPassword(const string& password) { this->password = password; }
 };
