@@ -26,7 +26,6 @@ private:
         return "movimientos/" + nombre + "_mov_" + id + ".txt";
     }
 
-
 public:
     Usuario(string id, string nombre, string apellido, int dni, int edad, string password)
         : id(id), nombre(nombre), apellido(apellido), dni(dni), edad(edad), password(password) {}
@@ -153,7 +152,6 @@ public:
 
         ofstream ofs(rutaHistorial(), ios::app);
         if (ofs) {
-            //string linea = mov.aLinea();
             ofs << mov.aLinea() << "\n";
         }
 

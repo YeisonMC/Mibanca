@@ -54,6 +54,9 @@ public:
 		cout << "Saldo: S/. " << saldo << endl;
 		cout << "Tasa de Interes: " << tasaInteres * 100 << "%" << endl;
 	}
+
+	// Getters
+	double getTasaInteres() const { return tasaInteres; }
 };
 
 class CuentaCredito : public Cuenta {
@@ -93,4 +96,8 @@ public:
 		cout << "Limite de Credito: S/. " << limiteCredito << endl;
 		cout << "Deuda actual: S/. " << deudaActual << endl;
 	}
+
+	//Getters
+	double getLimiteCredito() const { return limiteCredito; }
+	double getDeudaActual() const { return deudaActual; }
 };

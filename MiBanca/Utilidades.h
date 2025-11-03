@@ -28,6 +28,21 @@ void animacionVerificando() {
 }
 
 
+void animacionDeEspera() {
+    string texto = "Espere unos segundos ";
+    vector<string> anim = { ".  ", ".. ", "..." };
+    Console::CursorVisible = false;
+
+    for (int i = 0; i < 15; i++) {
+        Console::SetCursorPosition(35, 38);
+        cout << texto << anim[i % 3] << flush;
+        _sleep(100);
+    }
+    Console::SetCursorPosition(45, 40);
+    cout << string(20, ' ') << flush;
+    Console::CursorVisible = true;
+}
+
 // Leer contraseña oculta con asteriscos
 string leerPasswordOculto(string pass = "") {
     const int MAX_LEN = 8; // VERIFICAR DADO A QUE ES LA LONGITUD DE LA CONTRASEÑA

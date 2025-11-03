@@ -27,6 +27,7 @@ public:
     // ====== METODOS BÁSICOS ======
     bool vacia() const { return inicio == nullptr; }
     int size() const { return tamano; }
+    Nodo<T>* obtenerInicioNodo() const { return inicio; }
 
     // === Agregar ===
     void agregarInicio(T nuevo) {
@@ -37,15 +38,10 @@ public:
     }
 
     void agregarFinal(T nuevo) {
-       /* if (vacia()) { agregarInicio(nuevo); return; }
+        if (vacia()) { agregarInicio(nuevo); return; }
         Nodo<T>* actual = inicio;
         while (actual->siguiente != nullptr)
             actual = actual->siguiente;
-        actual->siguiente = new Nodo<T>(nuevo);
-        tamano++;*/
-        if (vacia()) { agregarInicio(nuevo); return; }
-        Nodo<T>* actual = inicio;
-        while (actual->siguiente != 0) actual = actual->siguiente;
         actual->siguiente = new Nodo<T>(nuevo);
         tamano++;
     }
@@ -149,38 +145,41 @@ public:
         return nullptr; 
     }
 
-    // ====== GUARDAR Y CARGAR EN ARCHIVO ======
+    // ===================================================
+    // GUARDAR Y CARGAR USUARIOS (solo datos básicos)
+    // ===================================================
     void guardar(const string& archivo = "usuarios.bin") {
         ofstream ofs(archivo, ios::binary | ios::trunc);
         if (!ofs) {
-            cerr << "Error al abrir el archivo para guardar." << endl;
+            cerr << "Error al abrir el archivo para guardar usuarios." << endl;
             return;
         }
 
         Nodo<T>* actual = inicio;
         while (actual != nullptr) {
-            escribir(ofs, actual->dato);
+            escribirUsuario(ofs, actual->dato);
             actual = actual->siguiente;
         }
 
         ofs.close();
-        cout << "Usuarios guardados correctamente en '" << archivo << "'.\n";
+        //cout << "[INFO] Usuarios guardados correctamente en '" << archivo << "'.\n";
     }
 
     void cargar(const string& archivo = "usuarios.bin") {
-        ifstream ifs(archivo.c_str(), ios::binary);
-
-        //ifstream ifs(archivo, ios::binary);
-
-        if (!ifs) return;
+        ifstream ifs(archivo, ios::binary);
+        if (!ifs) {
+            cout << "[INFO] No existe el archivo '" << archivo << "', se creará al guardar.\n";
+            return;
+        }
 
         while (true) {
             T u;
-            if (!leer(ifs, u)) break;
+            if (!leerUsuario(ifs, u)) break;
             agregarFinal(u);
         }
 
         ifs.close();
+        cout << "[INFO] Usuarios cargados desde '" << archivo << "'.\n";
     }
 
     // ====== LISTAR USUARIOS ======
@@ -280,7 +279,7 @@ public:
 
 private:
     // ====== FUNCIONES PRIVADAS DE ARCHIVO ======
-    void escribir(ofstream& ofs, T& u) {
+    void escribirUsuario(ofstream& ofs, T& u) {
         guardarString(ofs, u.getId());
         guardarString(ofs, u.getNombre());
         guardarString(ofs, u.getApellido());
@@ -289,71 +288,32 @@ private:
         int edad = u.getEdad();
         ofs.write((char*)&edad, sizeof(int));
         guardarString(ofs, u.getPassword());
-
-        // --- Guardar cantidad de tarjetas ---
-        int cantidadTarjetas = u.getTarjetas().size();
-        ofs.write((char*)&cantidadTarjetas, sizeof(int));
-
-        // --- Guardar cada tarjeta ---
-        for (auto t : u.getTarjetas()) {
-            guardarString(ofs, t->getNumero());
-            int tipo = (int)t->getTipo();
-            ofs.write((char*)&tipo, sizeof(int));
-            int cvc = t->getCvc();
-            ofs.write((char*)&cvc, sizeof(int));
-            guardarString(ofs, t->getTitular());
-
-            if (t->getCuentaAsociada() != nullptr) {
-                guardarString(ofs, t->getCuentaAsociada()->getIdCuenta());
-            }
-            else {
-                guardarString(ofs, "SIN_CUENTA"); 
-            }
- 
-        }
     }
 
-    bool leer(ifstream& ifs, T& u) {
+
+    bool leerUsuario(ifstream& ifs, T& u) {
         string id = leerString(ifs);
-        if (id.empty()) return false;
+        if (id.empty()) return false;  
 
         string nombre = leerString(ifs);
         string apellido = leerString(ifs);
+
         int dni = 0;
         if (!ifs.read((char*)&dni, sizeof(int))) return false;
+
         int edad = 0;
         if (!ifs.read((char*)&edad, sizeof(int))) return false;
+
         string password = leerString(ifs);
 
-        // Creamos un nuevo usuario con los datos leIdos
+        // Crear el usuario con los datos basicos
         u = T(id, nombre, apellido, dni, edad, password);
-
-        // Leemos la cantidad de tarjetas
-        int cantidadTarjetas = 0;
-        ifs.read((char*)&cantidadTarjetas, sizeof(int));
-
-        // Leemos cada tarjeta
-        for (int i = 0; i < cantidadTarjetas; i++) {
-            string numero = leerString(ifs);
-            int tipoInt = 0;
-            ifs.read((char*)&tipoInt, sizeof(int));
-            TipoTarjeta tipo = (TipoTarjeta)tipoInt;
-            int cvc = 0;
-            ifs.read((char*)&cvc, sizeof(int));
-            string titular = leerString(ifs);
-     
-            //Cuenta* cuenta = leerCuenta(ifs);
-            //if (cuenta) listaDeCuentas.push_back(cuenta);
-
-
-            //// Creamos la tarjeta con la cuenta asociada (si existe)
-            //Tarjeta* tarjeta = new Tarjeta(numero, tipo, cvc, titular, cuenta);
-            //u.agregarTarjeta(tarjeta);
-        }
-
         return true;
     }
 
+    // ===================================================
+    // FUNCIONES DE SOPORTE PARA STRINGS BINARIOS
+    // ===================================================
     void guardarString(ofstream& ofs, const string& s) {
         int len = (int)s.size();
         ofs.write((char*)&len, sizeof(int));

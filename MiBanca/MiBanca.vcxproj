@@ -117,6 +117,9 @@
     <ClInclude Include="Banco.h" />
     <ClInclude Include="Cola.h" />
     <ClInclude Include="Cuenta.h" />
+    <ClInclude Include="GestorCuentas.h" />
+    <ClInclude Include="GestorTarjetas.h" />
+    <ClInclude Include="Imagenes.h" />
     <ClInclude Include="InicioSesion.h" />
     <ClInclude Include="ListaUsuarios.h" />
     <ClInclude Include="Movimiento.h" />

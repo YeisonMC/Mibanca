@@ -76,4 +76,5 @@ public:
     int getCvc() const { return cvc; }
     string getTitular() const { return titular; }
     Cuenta* getCuentaAsociada() const { return cuentaAsociada; }
+    void setCuentaAsociada(Cuenta* cuenta) { this->cuentaAsociada = cuenta; }
 };

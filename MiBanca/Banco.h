@@ -8,7 +8,9 @@
 #include "Usuario.h"
 #include "ListaUsuarios.h"
 #include "InicioSesion.h"
-#include "RegistroUsuario.h" 
+#include "RegistroUsuario.h"
+#include "GestorTarjetas.h"
+#include "GestorCuentas.h"
 #include "Utilidades.h"
 #include "Cola.h"
 
@@ -21,6 +23,8 @@ template<typename T>
 class Banco {
 private:
     ListaUsuarios<T>* usuarios;
+    GestorTarjetas<T>* gestorTarjetas;
+    GestorCuentas<T>* gestorCuentas;
     InicioSesion<T>* sesion;
     T* usuarioActual;
     bool sesionActiva;
@@ -33,6 +37,8 @@ private:
 public:
     Banco() {
         usuarios = new ListaUsuarios<T>();
+        gestorTarjetas = new GestorTarjetas<T>();
+        gestorCuentas = new GestorCuentas<T>();
         sesion = new InicioSesion<T>();
         usuarioActual = nullptr;
         sesionActiva = false;
@@ -41,8 +47,12 @@ public:
     ~Banco() {
         if (usuarios) {
             usuarios->guardar();
+            gestorTarjetas->guardarTarjetas(*usuarios);
+            gestorCuentas->guardarCuentas(*usuarios);
             delete usuarios;
         }
+        if (gestorTarjetas) delete gestorTarjetas;
+        if (gestorCuentas) delete gestorCuentas;
         if (sesion) delete sesion;
     }
 
@@ -62,6 +72,8 @@ private:
     void inicializarSistema() {
         srand((unsigned)time(nullptr));
         usuarios->cargar();
+        gestorTarjetas->cargarTarjetas(*usuarios);
+        gestorCuentas->cargarCuentas(*usuarios);
         Console::Clear();
         tituloConsola("SISTEMA BANCARIO DIGITAL");
     }
@@ -165,8 +177,8 @@ private:
         cout << "2. Transferir fondos\n";
         cout << "3. Ver historial de operaciones\n";
         cout << "4. Pago de servicios\n";
-        cout << "5. Solicitar préstamo\n";
-        cout << "6. Cerrar sesión\n";
+        cout << "5. Solicitar prestamo\n";
+        cout << "6. Cerrar sesion\n";
         cout << string(60, '=') << endl;
     }
 
@@ -357,6 +369,8 @@ private:
         Console::Clear();
         tituloConsola("CERRANDO SESION");
         usuarios->guardar();
+        gestorCuentas->guardarCuentas(*usuarios); 
+        gestorTarjetas->guardarTarjetas(*usuarios); 
      /*   sesion->cerrarSesion();
         sesionActiva = false;*/
         if (sesionActiva && usuarioActual != nullptr) {
