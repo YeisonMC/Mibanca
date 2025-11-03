@@ -8,13 +8,14 @@
 #include "Usuario.h"
 #include "ListaUsuarios.h"
 #include "InicioSesion.h"
+#include "RegistroUsuario.h" 
 #include "Utilidades.h"
 #include "Cola.h"
 
 using namespace std;
 using namespace System;
 
-void setColor(int color); // declarada en Utilidades.h
+void setColor(int color); 
 
 template<typename T>
 class Banco {
@@ -50,18 +51,7 @@ public:
     // ============================
     void ejecutar() {
         inicializarSistema();
-
-        if (!iniciarSesion()) {
-            Console::SetCursorPosition(35, 15);
-            mensajeError("No se pudo iniciar sesion.");
-            pausar();
-            return;
-        }
-
-        usuarioActual = sesion->getUsuarioActual();
-        sesionActiva = true;
-
-        menuPrincipal();
+        menuInicio();
         cerrarSistema();
     }
 
@@ -78,6 +68,60 @@ private:
 
     bool iniciarSesion() {
         return sesion->iniciar(*usuarios);
+    }
+
+    // ======================================================
+    // MENU INICIAL (ANTES DE SESION)
+    // ======================================================
+    void menuInicio() {
+        bool continuar = true;
+        while (continuar) {
+            Console::Clear();
+            tituloConsola("BANCO DIGITAL - BIENVENIDO");
+            cout << "1. Iniciar sesion\n";
+            cout << "2. Registrar nuevo usuario\n";
+            cout << "3. Salir\n";
+            cout << string(60, '=') << endl;
+
+            int opcion;
+            cout << "Seleccione una opcion: ";
+            if (!(cin >> opcion)) {
+                limpiarBuffer();
+                mensajeError("Opción invalida.");
+                pausar();
+                continue;
+            }
+            limpiarBuffer();
+
+            switch (opcion) {
+            case 1:
+                if (iniciarSesion()) {
+                    usuarioActual = sesion->getUsuarioActual();
+                    sesionActiva = true;
+                    menuPrincipal(); 
+                }
+                break;
+
+            case 2: {
+                auto nuevoUsuario = RegistroUsuario<T>::registrarNuevo(*usuarios);
+                if (nuevoUsuario) {
+                    usuarioActual = nuevoUsuario;
+                    sesionActiva = true;
+                    menuPrincipal(); // entra directo al menú tras registrarse
+                }
+                break;
+            }
+
+            case 3:
+                continuar = false;
+                break;
+
+            default:
+                mensajeError("Opcion no valida.");
+                pausar();
+                break;
+            }
+        }
     }
 
     // ============================
@@ -177,7 +221,9 @@ private:
         }
 
         // TODO: identificar cuenta asociada principal
-        cout << "En proceso... (falta vincular con cuentas y tarjetas)\n";
+        if (usuarios->retirarDeUsuario(usuarioActual->getId(), monto)) {
+            cout << "Nuevo saldo total: S/ " << formatoDinero(usuarioActual->obtenerSaldoTotal()) << endl;
+        }
         pausar();
     }
 
@@ -207,7 +253,7 @@ private:
             return;
         }
 
-        cout << "En proceso... (falta vincular cuentas y validacion de saldo)\n";
+        usuarios->transferirEntreUsuarios(usuarioActual->getId(), idDestino, monto);
         pausar();
     }
 
@@ -215,7 +261,7 @@ private:
     void operacionVerHistorial() {
         Console::Clear();
         tituloConsola("HISTORIAL DE OPERACIONES");
-        cout << "En proceso... (se integrará con Cola/Pila de operaciones)\n";
+        usuarioActual->mostrarHistorialDesdeTxt();
         pausar();
     }
 
@@ -311,7 +357,13 @@ private:
         Console::Clear();
         tituloConsola("CERRANDO SESION");
         usuarios->guardar();
-        sesion->cerrarSesion();
+     /*   sesion->cerrarSesion();
+        sesionActiva = false;*/
+        if (sesionActiva && usuarioActual != nullptr) {
+            sesion->cerrarSesion();
+            usuarioActual = nullptr;
+        }
+
         sesionActiva = false;
         _sleep(800);
         mensajeInfo("Gracias por usar el Banco Digital.");

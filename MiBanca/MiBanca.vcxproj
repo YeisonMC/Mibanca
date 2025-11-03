@@ -119,8 +119,10 @@
     <ClInclude Include="Cuenta.h" />
     <ClInclude Include="InicioSesion.h" />
     <ClInclude Include="ListaUsuarios.h" />
+    <ClInclude Include="Movimiento.h" />
     <ClInclude Include="Nodo.h" />
     <ClInclude Include="Pila.h" />
+    <ClInclude Include="RegistroUsuario.h" />
     <ClInclude Include="Tarjeta.h" />
     <ClInclude Include="Usuario.h" />
     <ClInclude Include="Utilidades.h" />

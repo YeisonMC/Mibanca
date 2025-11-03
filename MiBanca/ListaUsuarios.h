@@ -4,6 +4,8 @@
 #include <string>
 #include "Nodo.h"
 #include "Usuario.h"
+#include "Cuenta.h"
+#include "Tarjeta.h"
 
 using namespace std;
 
@@ -35,10 +37,15 @@ public:
     }
 
     void agregarFinal(T nuevo) {
-        if (vacia()) { agregarInicio(nuevo); return; }
+       /* if (vacia()) { agregarInicio(nuevo); return; }
         Nodo<T>* actual = inicio;
         while (actual->siguiente != nullptr)
             actual = actual->siguiente;
+        actual->siguiente = new Nodo<T>(nuevo);
+        tamano++;*/
+        if (vacia()) { agregarInicio(nuevo); return; }
+        Nodo<T>* actual = inicio;
+        while (actual->siguiente != 0) actual = actual->siguiente;
         actual->siguiente = new Nodo<T>(nuevo);
         tamano++;
     }
@@ -161,7 +168,10 @@ public:
     }
 
     void cargar(const string& archivo = "usuarios.bin") {
-        ifstream ifs(archivo, ios::binary);
+        ifstream ifs(archivo.c_str(), ios::binary);
+
+        //ifstream ifs(archivo, ios::binary);
+
         if (!ifs) return;
 
         while (true) {
@@ -193,9 +203,79 @@ public:
         cout << "===============================\n";
     }
 
+    // ===================================================
+// OPERACIONES BANCARIAS GLOBALES
+// ===================================================
+    bool retirarDeUsuario(const string& idUsuario, double monto) {
+        if (monto <= 0) return false;
+        T* u = buscarPorId(idUsuario);
+        if (!u) {
+            mensajeError("Usuario no encontrado.");
+            return false;
+        }
+
+        if (u->retirarDinero(monto)) {
+            mensajeExito("Retiro realizado correctamente.");
+            return true;
+        }
+
+        mensajeError("No se pudo realizar el retiro (saldo insuficiente o sin cuenta).");
+        return false;
+    }
+
+    bool depositarAUsuario(const string& idUsuario, double monto) {
+        if (monto <= 0) return false;
+        T* u = buscarPorId(idUsuario);
+        if (!u) {
+            mensajeError("Usuario no encontrado.");
+            return false;
+        }
+
+        if (u->depositarDinero(monto)) {
+            mensajeExito("Deposito realizado correctamente.");
+            return true;
+        }
+
+        mensajeError("No se pudo realizar el deposito (sin cuenta asociada).");
+        return false;
+    }
+
+    bool transferirEntreUsuarios(const string& idOrigen, const string& idDestino, double monto) {
+        if (monto <= 0 || idOrigen == idDestino) {
+            mensajeError("Operacion invalida.");
+            return false;
+        }
+
+        T* origen = buscarPorId(idOrigen);
+        T* destino = buscarPorId(idDestino);
+
+        if (!origen || !destino) {
+            mensajeError("Uno de los usuarios no existe.");
+            return false;
+        }
+
+        if (origen->transferirDinero(destino, monto)) {
+            mensajeExito("Transferencia realizada correctamente.");
+            return true;
+        }
+
+        mensajeError("No se pudo completar la transferencia.");
+        return false;
+    }
+
     // ====== LIMPIAR ======
     void limpiar() {
-        while (!vacia()) eliminarInicio();
+        //while (!vacia()) eliminarInicio();
+        if (vacia()) return;
+
+        Nodo<T>* actual = inicio;
+        while (actual != nullptr) {
+            Nodo<T>* temp = actual;
+            actual = actual->siguiente;
+            delete temp; 
+        }
+        inicio = nullptr;
+        tamano = 0;
     }
 
 private:
@@ -229,6 +309,7 @@ private:
             else {
                 guardarString(ofs, "SIN_CUENTA"); 
             }
+ 
         }
     }
 
@@ -260,16 +341,14 @@ private:
             int cvc = 0;
             ifs.read((char*)&cvc, sizeof(int));
             string titular = leerString(ifs);
-            string idCuenta = leerString(ifs);
+     
+            //Cuenta* cuenta = leerCuenta(ifs);
+            //if (cuenta) listaDeCuentas.push_back(cuenta);
 
-            Cuenta* cuenta = nullptr;
-            if (idCuenta != "SIN_CUENTA") {
-                cuenta = buscarCuentaPorId(idCuenta); 
-            }
 
-            // Creamos la tarjeta con la cuenta asociada (si existe)
-            Tarjeta* tarjeta = new Tarjeta(numero, tipo, cvc, titular, cuenta);
-            u.agregarTarjeta(tarjeta);
+            //// Creamos la tarjeta con la cuenta asociada (si existe)
+            //Tarjeta* tarjeta = new Tarjeta(numero, tipo, cvc, titular, cuenta);
+            //u.agregarTarjeta(tarjeta);
         }
 
         return true;

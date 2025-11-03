@@ -122,7 +122,7 @@ bool validarPassword(string password) {
 
 void limpiarBuffer() {
     cin.clear();
-    //cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore(10000, '\n');
 }
 
 // Pausar con mensaje

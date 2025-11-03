@@ -17,14 +17,14 @@ public:
     bool vacia() { return tope == nullptr; }
     int size() { return tamano; }
 
-    void push(T valor) {
-        /*Nodo<T>* nuevo = new Nodo<T>(valor, tope);
+    void push(const T& valor) {
+        Nodo<T>* nuevo = new Nodo<T>(valor, tope);
         tope = nuevo;
-        tamano++;*/
-        Nodo<T>* nuevo = new Nodo<T>(valor);
+        tamano++;
+    /*    Nodo<T>* nuevo = new Nodo<T>(valor);
         nuevo->siguiente = tope;
         tope = nuevo; 
-        tamano++;
+        tamano++;*/
     }
 
     bool pop() {

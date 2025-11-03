@@ -66,6 +66,10 @@ public:
             << cuentaAsociada->getIdCuenta() << endl;
     }
 
+    void registrarMovimiento(const string& tipo, double monto) const {
+        cout << "[Movimiento] " << tipo << " | Monto: S/. " << fixed << setprecision(2) << monto << endl;
+    }
+
     // Getters
     string getNumero() const { return numero; }
     TipoTarjeta getTipo() const { return tipo; }

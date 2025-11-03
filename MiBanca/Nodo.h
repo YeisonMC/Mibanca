@@ -8,8 +8,11 @@ public:
 	Nodo<T>* siguiente;
 
 	// Constructor
-	Nodo(T valor, Nodo<T>* sig = nullptr) {
+	/*Nodo(T valor, Nodo<T>* sig = nullptr) {
 		dato = valor;
 		siguiente = sig;
+	}*/
+	Nodo(const T& valor, Nodo<T>* sig = nullptr)
+		: dato(valor), siguiente(sig) {
 	}
 };
