@@ -114,13 +114,16 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Banco.h" />
     <ClInclude Include="Cola.h" />
     <ClInclude Include="Cuenta.h" />
+    <ClInclude Include="InicioSesion.h" />
     <ClInclude Include="ListaUsuarios.h" />
     <ClInclude Include="Nodo.h" />
     <ClInclude Include="Pila.h" />
     <ClInclude Include="Tarjeta.h" />
     <ClInclude Include="Usuario.h" />
+    <ClInclude Include="Utilidades.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
