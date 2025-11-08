@@ -173,11 +173,15 @@ private:
     }
 
     void mostrarOpcionesMenu() {
+        cout << "========================================================\n";
+        cout << "|                    MENU PRINCIPAL                      |\n";
+        cout << "========================================================\n";
         cout << "1. Retirar dinero\n";
-        cout << "2. Transferir fondos\n";
+        cout << "2. Transferir dinero\n";
         cout << "3. Ver historial de operaciones\n";
         cout << "4. Pago de servicios\n";
         cout << "5. Solicitar prestamo\n";
+		cout << "5.2. Solicitar tarjeta de credito (pendiente)\n";
         cout << "6. Cerrar sesion\n";
         cout << string(60, '=') << endl;
     }
@@ -244,28 +248,60 @@ private:
         Console::Clear();
         tituloConsola("TRANSFERENCIA ENTRE USUARIOS");
 
-        string idDestino;
+        if (usuarioActual) {
+            Tarjeta* t = usuarioActual->obtenerTarjetaPrincipal();
+            if (t && t->getCuentaAsociada()) {
+                cout << "\nTu cuenta principal: " << t->getCuentaAsociada()->getIdCuenta() << endl;
+                cout << "Saldo disponible: S/ " << formatoDinero(t->getCuentaAsociada()->getSaldo()) << endl;
+            }
+        }
+
+        string numCuentaDestino;
         double monto;
 
-        cout << "Ingrese ID del usuario destinatario: ";
-        cin >> idDestino;
+        cout << "Ingrese numero de cuenta destino: ";
+        cin >> numCuentaDestino;
+        limpiarBuffer();
 
-        T* destinatario = usuarios->buscarPorId(idDestino);
+        T* destinatario = usuarios->buscarPorNumeroCuenta(numCuentaDestino);
         if (!destinatario) {
-            mensajeError("Usuario destino no encontrado.");
+            mensajeError("Cuenta destino no encontrada.");
             pausar();
             return;
         }
 
-        cout << "Ingrese monto a transferir: S/ ";
+        cout << "\nEsta a punto de transferir fondos a:\n";
+        cout << "Nombre: " << destinatario->getNombre() << " " << destinatario->getApellido() << endl;
+
+        if (!confirmarAccion("Desea continuar con la transferencia?")) {
+            mensajeInfo("Operacion cancelada por el usuario.");
+            pausar();
+            return;
+        }
+
+        cout << "Ingrese monto a transferir: (S/): ";
         if (!(cin >> monto) || monto <= 0) {
             mensajeError("Monto invalido.");
             limpiarBuffer();
             pausar();
             return;
         }
+        limpiarBuffer();
+        
+        // Confirmar saldo
+        if (usuarioActual->obtenerSaldoTotal() < monto) {
+            mensajeError("Saldo insuficiente para realizar la transferencia.");
+            pausar();
+            return;
+        }
 
-        usuarios->transferirEntreUsuarios(usuarioActual->getId(), idDestino, monto);
+        if (usuarioActual->transferirDinero(destinatario, monto)) {
+            mensajeExito("Transferencia realizada correctamente.");
+            usuarios->guardar();
+        }
+        else {
+            mensajeError("No se pudo completar la transferencia.");
+        }
         pausar();
     }
 

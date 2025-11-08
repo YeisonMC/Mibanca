@@ -75,9 +75,15 @@ public:
             vector<Tarjeta*>& tarjetas = const_cast<vector<Tarjeta*>&>(actual->dato.getTarjetas());
             for (auto t : tarjetas) {
                 for (auto c : cuentasCargadas) {
-                    if (c->getIdCuenta() == t->getCuentaAsociada()->getIdCuenta()) {
+                    /*if (c->getIdCuenta() == t->getCuentaAsociada()->getIdCuenta()) {
                         t->setCuentaAsociada(c);
-                    }
+                    }*/
+                  /*  if (t && c) {
+                        Cuenta* cuentaAsociada = t->getCuentaAsociada();
+                        if (cuentaAsociada && cuentaAsociada->getIdCuenta() == c->getIdCuenta()) {
+                            t->setCuentaAsociada(c);
+                        }
+                    }*/
                 }
             }
             actual = actual->siguiente;

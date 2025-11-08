@@ -136,6 +136,22 @@ public:
         return nullptr;
     }
 
+    T* buscarPorNumeroCuenta(const string& numCuenta) {
+        Nodo<T>* actual = inicio;
+        while (actual != nullptr) {
+            const vector<Tarjeta*>& tarjetas = actual->dato.getTarjetas();
+            for (auto t : tarjetas) {
+                if (t->getCuentaAsociada() &&
+                    t->getCuentaAsociada()->getIdCuenta() == numCuenta) {
+                    return &(actual->dato);
+                }
+            }
+            actual = actual->siguiente;
+        }
+        return nullptr;
+    }
+
+
     Cuenta* buscarCuentaPorId(const string& idCuenta) {
         for (auto cuenta : listaDeCuentas) {
             if (cuenta->getIdCuenta() == idCuenta) {
